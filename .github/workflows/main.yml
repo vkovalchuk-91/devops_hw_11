@@ -36,12 +36,6 @@ jobs:
       - name: Init Terraform
         run: terraform init
 
-
-      - name: Destroy Terraform (destroy)
-        if: contains(github.event.inputs.action, 'destroy')
-        id: destroy
-        run: terraform destroy -auto-approve
-
       - name: Plan Terraform (apply)
         if: contains(github.event.inputs.action, 'apply')
         run: terraform plan
@@ -67,8 +61,9 @@ jobs:
           echo "INSTANCE_ID=$INSTANCE_ID" >> $GITHUB_ENV
           echo "INSTANCE_IP=$INSTANCE_IP" >> $GITHUB_ENV
 
-      - name: Collect status
-        id: collect_status
+      - name: Collect status (apply)
+        if: contains(github.event.inputs.action, 'apply')
+        id: collect_status_apply
         run: |
           echo "TERRAFORM_STATUS=$([[ '${{ steps.apply.outcome }}' == 'success' ]] && echo '✅ Success')" >> $GITHUB_ENV
 
@@ -83,6 +78,17 @@ jobs:
             *Instance Id*: ${{ env.INSTANCE_ID }}
             *Public IP*: ${{ env.INSTANCE_IP }}
             *Terraform Action Status*: ${{ env.TERRAFORM_STATUS }}
+
+      - name: Destroy Terraform (destroy)
+        if: contains(github.event.inputs.action, 'destroy')
+        id: destroy
+        run: terraform destroy -auto-approve
+
+      - name: Collect status (destroy)
+        if: contains(github.event.inputs.action, 'destroy')
+        id: collect_status_destroy
+        run: |
+          echo "TERRAFORM_STATUS=$([[ '${{ steps.destroy.outcome }}' == 'success' ]] && echo '✅ Success')" >> $GITHUB_ENV
 
       - name: Send Telegram Notification (destroy)
         if: contains(github.event.inputs.action, 'destroy')
