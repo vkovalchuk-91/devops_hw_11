@@ -42,9 +42,9 @@ jobs:
           terraform apply -auto-approve | tee output.txt
           
           # Витягування значень із логів
-          AMI_ID=$(awk -F'ami_id = "' '{print $2}' output.txt | awk -F'"' '{print $1}')
-          INSTANCE_ID=$(sed -n 's/.*ami_id = "\(.*\)".*/\1/p' output.txt)
-          INSTANCE_IP=$(awk -F'= ' '/instance_ip/ {gsub(/"/, "", $2); print $2}' output.txt | tr -d '\n' | xargs)
+          AMI_ID=$(awk -F'ami_id = "' '{print $2}'tail -3 output.txt | awk -F'"' '{print $1}')
+          INSTANCE_ID=$(awk -F'instance_id = "' '{print $2}'tail -3 output.txt | awk -F'"' '{print $1}')
+          INSTANCE_IP=$(awk -F'instance_ip = "' '{print $2}'tail -3 output.txt | awk -F'"' '{print $1}')
            
           # Збереження значень як змінних середовища для подальших кроків
           echo "AMI_ID=$AMI_ID" >> $GITHUB_ENV
