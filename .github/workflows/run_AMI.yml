@@ -39,22 +39,13 @@ jobs:
       - name: Apply Terraform
         id: apply
         run: |
-          terraform apply -auto-approve | tee output.txt
-          
-          # Витягування значень із логів
-          AMI_ID=$(tail -3 output.txt | awk -F'ami_id = "' '{print $2}' | awk -F'"' '{print $1}')
-          INSTANCE_ID=$(tail -3 output.txt | awk -F'instance_id = "' '{print $2}' | awk -F'"' '{print $1}')
-          INSTANCE_IP=$(tail -3 output.txt | awk -F'instance_ip = "' '{print $2}' | awk -F'"' '{print $1}')
-           
-          # Збереження значень як змінних середовища для подальших кроків
-          echo "AMI_ID=$AMI_ID" >> $GITHUB_ENV
-          echo "INSTANCE_ID=$INSTANCE_ID" >> $GITHUB_ENV
-          echo "INSTANCE_IP=$INSTANCE_IP" >> $GITHUB_ENV
-      
-          # Виведення значень змінних
-          echo "AMI_ID: $AMI_ID"
-          echo "INSTANCE_ID: $INSTANCE_ID"
-          echo "INSTANCE_IP: $INSTANCE_IP"
+          terraform apply -auto-approve
+
+      - name: Get outputs
+        run: |
+          AMI_ID=$(terraform output -raw ami_id)
+          INSTANCE_ID=$(terraform output -raw instance_id)
+          INSTANCE_IP=$(terraform output -raw instance_ip)
 
       - name: Collect status
         id: collect_status
