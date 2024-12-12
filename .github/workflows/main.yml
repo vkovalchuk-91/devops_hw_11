@@ -1,0 +1,93 @@
+name: Terraform Operations
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Choose the Terraform action to perform'
+        required: true
+        default: 'apply'
+        options:
+          - 'apply'
+          - 'destroy'
+
+jobs:
+  process-commit-message:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set initial Terraform status
+        run: echo "TERRAFORM_STATUS=❌ Failed" >> $GITHUB_ENV
+
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-central-1
+
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v2
+
+      - name: Init Terraform
+        run: terraform init
+
+
+      - name: Destroy Terraform (destroy)
+        if: contains(github.event.inputs.action, 'destroy')
+        id: destroy
+        run: terraform destroy -auto-approve
+
+      - name: Plan Terraform (apply)
+        if: contains(github.event.inputs.action, 'apply')
+        run: terraform plan
+
+      - name: Apply Terraform (apply)
+        if: contains(github.event.inputs.action, 'apply')
+        id: apply
+        run: |
+          terraform apply -auto-approve
+
+      - name: Get outputs (apply)
+        if: contains(github.event.inputs.action, 'apply')
+        run: |
+          terraform apply | tee output.txt
+          
+          # Витягування значень із логів
+          AMI_ID=$(tail -3 output.txt | awk -F'ami_id = "' '{print $2}' | awk -F'"' '{print $1}')
+          INSTANCE_ID=$(tail -3 output.txt | awk -F'instance_id = "' '{print $2}' | awk -F'"' '{print $1}')
+          INSTANCE_IP=$(tail -3 output.txt | awk -F'instance_ip = "' '{print $2}' | awk -F'"' '{print $1}')
+           
+          # Збереження значень як змінних середовища для подальших кроків
+          echo "AMI_ID=$AMI_ID" >> $GITHUB_ENV
+          echo "INSTANCE_ID=$INSTANCE_ID" >> $GITHUB_ENV
+          echo "INSTANCE_IP=$INSTANCE_IP" >> $GITHUB_ENV
+
+      - name: Collect status
+        id: collect_status
+        run: |
+          echo "TERRAFORM_STATUS=$([[ '${{ steps.apply.outcome }}' == 'success' ]] && echo '✅ Success')" >> $GITHUB_ENV
+
+      - name: Send Telegram Notification (apply)
+        if: contains(github.event.inputs.action, 'apply')
+        uses: cbrgm/telegram-github-action@v1
+        with:
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          to: ${{ secrets.TELEGRAM_CHAT_ID }}
+          message: |
+            *AMI Id*: ${{ env.AMI_ID }}
+            *Instance Id*: ${{ env.INSTANCE_ID }}
+            *Public IP*: ${{ env.INSTANCE_IP }}
+            *Terraform Action Status*: ${{ env.TERRAFORM_STATUS }}
+
+      - name: Send Telegram Notification (destroy)
+        if: contains(github.event.inputs.action, 'destroy')
+        uses: cbrgm/telegram-github-action@v1
+        with:
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          to: ${{ secrets.TELEGRAM_CHAT_ID }}
+          message: |
+            *Terraform Destroy Status*: ${{ env.TERRAFORM_STATUS }}
