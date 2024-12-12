@@ -27,8 +27,8 @@ data "aws_security_group" "default" {
 resource "aws_instance" "hw_11_server" {
   ami           = var.AMI_ID
   instance_type = "t2.micro"
-
-  vpc_security_group_ids = [data.aws_security_group.default.id]
+  key_name      = "slengpack"
+  security_groups = [data.aws_security_group.default.id]
 
   tags = {
     Name = "AWS_TERRAFORM_HW_11"
