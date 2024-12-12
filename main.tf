@@ -12,7 +12,7 @@ provider "aws" {
 
 variable "AMI_ID" {
   type = string
-  default = "ami-0745b7d4092315796"
+  default = "ami-0745b7d4092315796--"
 }
 
 data "aws_vpc" "default" {
