@@ -2,12 +2,6 @@ name: Run AMI
 
 on:
   workflow_dispatch:
-    inputs:
-      ec2-name:
-        description: Run AMI
-        required: true
-        default: "Run AMI"
-        type: string
 
 jobs:
   process-commit-message:
@@ -54,11 +48,6 @@ jobs:
           echo "AMI_ID=$AMI_ID" >> $GITHUB_ENV
           echo "INSTANCE_ID=$INSTANCE_ID" >> $GITHUB_ENV
           echo "INSTANCE_IP=$INSTANCE_IP" >> $GITHUB_ENV
-      
-          # Виведення значень змінних
-          echo "AMI_ID: $AMI_ID"
-          echo "INSTANCE_ID: $INSTANCE_ID"
-          echo "INSTANCE_IP: $INSTANCE_IP"
 
       - name: Collect status
         id: collect_status
