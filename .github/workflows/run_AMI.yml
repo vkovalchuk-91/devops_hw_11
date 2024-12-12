@@ -34,13 +34,20 @@ jobs:
         run: terraform plan
 
       - name: Apply Terraform
-        id: apply
+        id: apply1
         run: terraform apply -auto-approve
 
       - name: Collect status
         id: collect_status
         run: |
-          echo "TERRAFORM_STATUS=$([[ '${{ steps.apply.outcome }}' == 'success' ]] && echo '✅ Success' || echo '❌ Failed')" >> $GITHUB_ENV
+          echo "TERRAFORM_STATUS=$([[ '${{ steps.apply.outcome }}' == 'success' ]] && echo '✅ Success' || '❌ Failed')" >> $GITHUB_ENV
+
+      - name: Get Additional Data
+        id: outputs
+        run: |
+          echo "AMI_ID=$(terraform output -raw ami_id)" >> $GITHUB_ENV
+          echo "INSTANCE_ID=$(terraform output -raw instance_id)" >> $GITHUB_ENV
+          echo "INSTANCE_IP=$(terraform output -raw instance_ip)" >> $GITHUB_ENV
 
       - name: Send Telegram Notification
         if: always()
@@ -49,4 +56,7 @@ jobs:
           token: ${{ secrets.TELEGRAM_TOKEN }}
           to: ${{ secrets.TELEGRAM_CHAT_ID }}
           message: |
+            *AMI Id*: `${{ env.AMI_ID }}`
+            *Instance Id*: `${{ env.INSTANCE_ID }}`
+            *Public IP*: `${{ env.INSTANCE_IP }}`
             *Terraform Apply Status*: ${{ env.TERRAFORM_STATUS }}
