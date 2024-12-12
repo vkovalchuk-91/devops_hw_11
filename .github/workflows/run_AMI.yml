@@ -40,7 +40,11 @@ jobs:
       - name: Collect status
         id: collect_status
         run: |
-          echo "TERRAFORM_STATUS=${{ steps.apply.conclusion }}" >> $GITHUB_ENV
+          if [ "${{ steps.apply.outcome }}" == "success" ]; then
+            echo "TERRAFORM_STATUS=✅ Success" >> $GITHUB_ENV
+          else
+            echo "TERRAFORM_STATUS=❌ Failed" >> $GITHUB_ENV
+          fi
 
       - name: Get Additional Data
         id: outputs
