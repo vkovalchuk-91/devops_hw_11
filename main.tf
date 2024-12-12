@@ -10,6 +10,11 @@ provider "aws" {
   region = "eu-central-1"
 }
 
+data "aws_security_group" "default" {
+  name   = "default"
+  vpc_id = data.aws_vpc.default.id
+}
+
 resource "aws_instance" "hw_11_server" {
   ami           = "ami-0745b7d4092315796"
   instance_type = "t2.micro"
