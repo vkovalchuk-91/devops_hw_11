@@ -49,7 +49,7 @@ jobs:
       - name: Get outputs (apply)
         if: contains(github.event.inputs.action, 'apply')
         run: |
-          terraform apply | tee output.txt
+          terraform output | tee output.txt
           
           # Витягування значень із логів
           AMI_ID=$(tail -3 output.txt | awk -F'ami_id = "' '{print $2}' | awk -F'"' '{print $1}')
