@@ -39,13 +39,13 @@ jobs:
       - name: Apply Terraform
         id: apply
         run: |
-          terraform apply -auto-approve | tee output.txt | tail -n 3 > output.txt
+          terraform apply -auto-approve | tee output.txt
           
           # Витягування значень із логів
-          AMI_ID=$(output.txt | awk 'match($0, /ami_id = "ami-.*/) { print substr($0, RSTART, RLENGTH) }' | sed 's/ami_id = "//;s/"//')
-          INSTANCE_ID=$(output.txt | awk 'match($0, /instance_id = "i-.*/) { print substr($0, RSTART, RLENGTH) }' | sed 's/instance_id = "//;s/"//')
-          INSTANCE_IP=$(output.txt | awk 'match($0, /instance_ip = ".*\..*\..*\..*/) { print substr($0, RSTART, RLENGTH) }' | sed 's/instance_ip = "//;s/"//')
-          
+          AMI_ID=$(awk -F'= ' '/ami_id/ {gsub(/"/, "", $2); print $2}' output.txt | tr -d '\n' | xargs)
+          INSTANCE_ID=$(awk -F'= ' '/instance_id/ {gsub(/"/, "", $2); print $2}' output.txt | tr -d '\n' | xargs)
+          INSTANCE_IP=$(awk -F'= ' '/instance_ip/ {gsub(/"/, "", $2); print $2}' output.txt | tr -d '\n' | xargs)
+           
           # Збереження значень як змінних середовища для подальших кроків
           echo "AMI_ID=$AMI_ID" >> $GITHUB_ENV
           echo "INSTANCE_ID=$INSTANCE_ID" >> $GITHUB_ENV
