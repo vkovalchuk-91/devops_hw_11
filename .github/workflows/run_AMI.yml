@@ -14,6 +14,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Set initial Terraform status
+        run: echo "TERRAFORM_STATUS=❌ Failed" >> $GITHUB_ENV
+
       - name: Checkout repository
         uses: actions/checkout@v2
 
@@ -40,11 +43,7 @@ jobs:
       - name: Collect status
         id: collect_status
         run: |
-          if [ $? -eq 0 ]; then
-            echo "TERRAFORM_STATUS=$([[ '${{ steps.apply.outcome }}' == 'success' ]] && echo '✅ Success' || echo '❌ Failed')" >> $GITHUB_ENV
-          else
-            echo "TERRAFORM_STATUS=❌ Failed" >> $GITHUB_ENV
-          fi
+          echo "TERRAFORM_STATUS=$([[ '${{ steps.apply.outcome }}' == 'success' ]] && echo '✅ Success')" >> $GITHUB_ENV
 
       - name: Get Additional Data
         id: outputs
