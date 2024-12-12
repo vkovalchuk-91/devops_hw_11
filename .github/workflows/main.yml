@@ -77,7 +77,7 @@ jobs:
             *AMI Id*: ${{ env.AMI_ID }}
             *Instance Id*: ${{ env.INSTANCE_ID }}
             *Public IP*: ${{ env.INSTANCE_IP }}
-            *Terraform Action Status*: ${{ env.TERRAFORM_STATUS }}
+            *Terraform Apply Status*: ${{ env.TERRAFORM_STATUS }}
 
       - name: Destroy Terraform (destroy)
         if: contains(github.event.inputs.action, 'destroy')
