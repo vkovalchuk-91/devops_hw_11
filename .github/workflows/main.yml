@@ -1,4 +1,4 @@
-name: Terraform Operations
+name: Launch/destroy Instance Operations
 
 on:
   workflow_dispatch:
