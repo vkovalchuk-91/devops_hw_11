@@ -74,6 +74,7 @@ jobs:
           token: ${{ secrets.TELEGRAM_TOKEN }}
           to: ${{ secrets.TELEGRAM_CHAT_ID }}
           message: |
+            *Launch instance from AMI Results*:
             *AMI Id*: ${{ env.AMI_ID }}
             *Instance Id*: ${{ env.INSTANCE_ID }}
             *Public IP*: ${{ env.INSTANCE_IP }}
@@ -97,4 +98,5 @@ jobs:
           token: ${{ secrets.TELEGRAM_TOKEN }}
           to: ${{ secrets.TELEGRAM_CHAT_ID }}
           message: |
+            *Destroy tracked instances Results*:
             *Terraform Destroy Status*: ${{ env.TERRAFORM_STATUS }}
