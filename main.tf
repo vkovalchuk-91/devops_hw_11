@@ -15,6 +15,10 @@ variable "AMI_ID" {
   default = "ami-0745b7d4092315796"
 }
 
+data "aws_vpc" "default" {
+  default = true
+}
+
 data "aws_security_group" "default" {
   name   = "default"
   vpc_id = data.aws_vpc.default.id
