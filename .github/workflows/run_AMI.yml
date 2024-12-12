@@ -34,17 +34,13 @@ jobs:
         run: terraform plan
 
       - name: Apply Terraform
-        id: apply1
+        id: apply
         run: terraform apply -auto-approve
 
       - name: Collect status
         id: collect_status
         run: |
-          if [[ ${{ steps.apply.conclusion }} == 'success' ]]; then
-            echo "TERRAFORM_STATUS=✅ Success" >> $GITHUB_ENV
-          else
-            echo "TERRAFORM_STATUS=❌ Failed" >> $GITHUB_ENV
-          fi
+          echo "TERRAFORM_STATUS=${{ steps.apply.conclusion }}" >> $GITHUB_ENV
 
       - name: Get Additional Data
         id: outputs
