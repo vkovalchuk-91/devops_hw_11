@@ -25,3 +25,11 @@ resource "aws_instance" "hw_11_server" {
     Name = "AWS_TERRAFORM_HW_11"
   }
 }
+
+output "instance_id" {
+    value = aws_instance.hw_11_server.id
+}
+
+output "instance_ip" {
+    value = aws_instance.hw_11_server.public_ip
+}
