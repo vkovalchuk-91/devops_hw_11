@@ -40,11 +40,8 @@ jobs:
       - name: Collect status
         id: collect_status
         run: |
-          if [ "${{ steps.apply.outcome }}" == "success" ]; then
-            echo "TERRAFORM_STATUS=✅ Success" >> $GITHUB_ENV
-          else
-            echo "TERRAFORM_STATUS=❌ Failed" >> $GITHUB_ENV
-          fi
+          echo "TERRAFORM_STATUS=❌ Failed" >> $GITHUB_ENV
+          echo "TERRAFORM_STATUS=$([[ '${{ steps.apply.outcome }}' == 'success' ]] && echo '✅ Success')" >> $GITHUB_ENV
 
       - name: Get Additional Data
         id: outputs
@@ -60,7 +57,7 @@ jobs:
           token: ${{ secrets.TELEGRAM_TOKEN }}
           to: ${{ secrets.TELEGRAM_CHAT_ID }}
           message: |
-            *AMI Id*: `${{ env.AMI_ID }}`
-            *Instance Id*: `${{ env.INSTANCE_ID }}`
-            *Public IP*: `${{ env.INSTANCE_IP }}`
+            *AMI Id*: ${{ env.AMI_ID }}
+            *Instance Id*: ${{ env.INSTANCE_ID }}
+            *Public IP*: ${{ env.INSTANCE_IP }}
             *Terraform Apply Status*: ${{ env.TERRAFORM_STATUS }}
