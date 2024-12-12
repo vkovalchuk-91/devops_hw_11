@@ -2,18 +2,15 @@ name: Destroy Infrastructure
 
 on:
   workflow_dispatch:
-    inputs:
-      ec2-name:
-        description: Destroy Infrastructure
-        required: true
-        default: "Destroy Infrastructure"
-        type: string
 
 jobs:
   process-commit-message:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Set initial Terraform status
+        run: echo "TERRAFORM_STATUS=❌ Failed" >> $GITHUB_ENV
+ 
       - name: Checkout repository
         uses: actions/checkout@v2
 
@@ -37,7 +34,7 @@ jobs:
       - name: Collect status
         id: collect_status
         run: |
-          echo "TERRAFORM_STATUS=$([[ '${{ steps.destroy.outcome }}' == 'success' ]] && echo '✅ Success' || echo '❌ Failed')" >> $GITHUB_ENV
+          echo "TERRAFORM_STATUS=$([[ '${{ steps.apply.outcome }}' == 'success' ]] && echo '✅ Success')" >> $GITHUB_ENV
 
       - name: Send Telegram Notification
         if: always()
